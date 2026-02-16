@@ -35,11 +35,30 @@ import { logError } from "./logger.js"
 // This is the core DDD idea: make illegal states unrepresentable.
 // ============================================================================
 
+type Name = string & {readonly __brand: unique symbol}
+type Email = string & {readonly __brand: unique symbol}
+type Phone = string & {readonly __brand: unique symbol}
+
+function createName(name: string): Name {
+	if (name.trim().length === 0) throw new Error("Name cannot be empty")
+	return name.trim() as Name
+}
+
+function createEmail(email: string): Email {
+	if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) throw new Error("Invalid email")
+	return email as Email
+}
+
+function createPhone(phone: string): Phone {
+	if (!/^\d[\d\-]{6,}$/.test(phone)) throw new Error("Invalid phone")
+	return phone as Phone
+}
+
 export function exercise3_StringConfusion() {
 	type Customer = {
-		name: string
-		email: string
-		phone: string
+		name: Name
+		email: Email
+		phone: Phone
 	}
 
 	// TypeScript sees all strings as the same!
@@ -59,9 +78,9 @@ export function exercise3_StringConfusion() {
 
 	// Even worse - empty strings pass validation
 	const emptyCustomer: Customer = {
-		name: "",
-		email: "",
-		phone: "",
+		name: createName(""),
+		email: createEmail(""),
+		phone: createPhone(""),
 	}
 
 	logError(3, "Empty strings accepted everywhere", {
