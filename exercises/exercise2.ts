@@ -23,10 +23,18 @@ import { logError } from "./logger.js"
 // make them explicit and impossible to bypass.
 // ============================================================================
 
+type Quantity = number & {readonly __brand: unique symbol}
+
+function createQuantity(amount: number): Quantity {
+	if (amount < 1) throw new Error("Quantity cannot be negative")
+	if (amount > 1_000) throw new Error("Exceeds business limit")
+	return amount as Quantity
+}
+
 export function exercise2_PrimitiveQuantity() {
 	type Order = {
 		itemName: string
-		quantity: number // Could be 0, negative, or absurdly high!
+		quantity: Quantity // Could be 0, negative, or absurdly high!
 		pricePerUnit: number
 	}
 
@@ -51,7 +59,7 @@ export function exercise2_PrimitiveQuantity() {
 	// Another silent bug - absurd quantity
 	const bulkOrder: Order = {
 		itemName: "Coffee",
-		quantity: 50000, // Silent bug! Unrealistic quantity
+		quantity: createQuantity(50000), // Silent bug! Unrealistic quantity
 		pricePerUnit: 3,
 	}
 
