@@ -8,15 +8,33 @@
 /* Martin: check previos knowledge here  */
 
 /*  RESTAURANT DOMAIN   */
-const calculatePrice = (price: number, quantity: number): number => {
-	return price * quantity
-}
+type Brand<K, T> = K & { __brand: T };
+type Price = Brand<number, "Price">;
+type Quantity = Brand<number, "Quantity">;
+
+const makePrice = (price: number): Price => {
+  if (price < 0) {
+    console.log(`${price} not valid`);
+  }
+  return price as Price;
+};
+
+const makeQuantity = (quantity: number): Quantity => {
+  if (quantity < 1) {
+    console.log(`${quantity} not valid`);
+  }
+  return quantity as Quantity;
+};
+
+const calculatePrice = (price: Price, quantity: Quantity) => {
+  return price * quantity;
+};
 // CAREFUL ! This function is very flexible but also very error-prone. It accepts any numbers !
 
 /*  manual tests   */
-const total = calculatePrice(10, 3) // user inputs price and quantity
+const total = calculatePrice(makePrice(10), makeQuantity(3)); // user inputs price and quantity
 
-console.log(`Total cost: $${total}`)
+console.log(`Total cost: $${total}`);
 /*
 /*
 /*
