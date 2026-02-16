@@ -1,0 +1,7 @@
+node_modules/
+dist/
+silent_errors.log   
+
+/* The `silent_errors.log` file is used to log silent errors that occur 
+during the execution of the exercises. It should not be tracked by version 
+control, as it is meant for local debugging purposes only. */
