@@ -25,11 +25,19 @@ import { logError } from "./logger.js"
 
 export function exercise1_PrimitivePrice() {
 	// Without domain types, price is just a number
-	type MenuItem = {
-		name: string
-		price: number // Could be negative! Could be a huge number!
-		quantity: number
-	}
+	type Price = number & { readonly __brand: unique symbol }
+
+function createPrice(amount: number): Price {
+	if (amount < 0) throw new Error("Price cannot be negative")
+	if (amount > 10_000) throw new Error("Price exceeds maximum")
+	return amount as Price
+}
+
+type MenuItem = {
+	name: string
+	price: Price // only accepts values from createPrice()
+	quantity: number
+}
 
 	const orderItem: MenuItem = {
 		name: "Burger",
@@ -45,7 +53,7 @@ export function exercise1_PrimitivePrice() {
 	const total = orderItem.price * orderItem.quantity
 	logError(1, "Negative price accepted without complaint", {
 		item: orderItem.name,
-		price: orderItem.price,
+		price: createPrice(orderItem.price),
 		calculatedTotal: total,
 		issue: "Price should never be negative!",
 	})
