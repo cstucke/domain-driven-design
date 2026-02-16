@@ -32,8 +32,16 @@ import { logError } from "./logger.js"
 // ============================================================================
 
 export function exercise5_IdentityCrisis() {
+	type OrderId = string & { readonly __brand: unique symbol }
+
+	function createOrderId(raw: string): OrderId {
+		if (!/^ORD-\d{5,}$/.test(raw))
+			throw new Error("OrderId must match ORD-XXXXX format")
+		return raw as OrderId
+	}
+
 	type Order = {
-		orderId: string // Just a string - could be anything!
+		orderId: OrderId // Just a string - could be anything!
 		customerName: string
 		total: number
 	}
@@ -45,22 +53,22 @@ export function exercise5_IdentityCrisis() {
 	// What makes a valid order ID? Nothing enforced!
 	const orders: Order[] = [
 		{
-			orderId: "", // Silent bug! Empty ID
+			orderId: createOrderId(""), // Silent bug! Empty ID
 			customerName: "Alice",
 			total: 25,
 		},
 		{
-			orderId: "12345", // Is this valid?
+			orderId: createOrderId("12345"), // Is this valid?
 			customerName: "Bob",
 			total: 30,
 		},
 		{
-			orderId: "12345", // Silent bug! Duplicate ID
+			orderId: createOrderId("12345"), // Silent bug! Duplicate ID
 			customerName: "Charlie",
 			total: 15,
 		},
 		{
-			orderId: "not-a-number", // Silent bug! Inconsistent format
+			orderId: createOrderId("not-a-number"), // Silent bug! Inconsistent format
 			customerName: "Diana",
 			total: 20,
 		},
