@@ -23,7 +23,7 @@ import { logError } from "./logger.js"
 // make them explicit and impossible to bypass.
 // ============================================================================
 
-type Quantity = number & {readonly __brand: unique symbol}
+type Quantity = number & { readonly __brand: unique symbol }
 
 function createQuantity(amount: number): Quantity {
 	if (amount < 1) throw new Error("Quantity cannot be negative")
@@ -32,40 +32,44 @@ function createQuantity(amount: number): Quantity {
 }
 
 export function exercise2_PrimitiveQuantity() {
-	type Order = {
-		itemName: string
-		quantity: Quantity // Could be 0, negative, or absurdly high!
-		pricePerUnit: number
+	try {
+		type Order = {
+			itemName: string
+			quantity: Quantity // Could be 0, negative, or absurdly high!
+			pricePerUnit: number
+		}
+
+		const order: Order = {
+			itemName: "Pizza",
+			quantity: -3, // Silent bug! Negative quantity
+			pricePerUnit: 15,
+		}
+
+		// TODO: Replace `number` with a Quantity branded type.
+		// Both of the bugs below should become impossible:
+		//   quantity: -3       // <-- negative
+		//   quantity: 50000    // <-- exceeds business limit
+
+		const total = order.quantity * order.pricePerUnit
+		logError(2, "Negative quantity allowed - restaurant owes customer money?", {
+			order,
+			calculatedTotal: total,
+			issue: "Quantity should be a positive integer!",
+		})
+
+		// Another silent bug - absurd quantity
+		const bulkOrder: Order = {
+			itemName: "Coffee",
+			quantity: createQuantity(50000), // Silent bug! Unrealistic quantity
+			pricePerUnit: 3,
+		}
+
+		logError(2, "Absurd quantity accepted without validation", {
+			order: bulkOrder,
+			calculatedTotal: bulkOrder.quantity * bulkOrder.pricePerUnit,
+			issue: "Should we really accept an order for 50,000 coffees?",
+		})
+	} catch (error) {
+		console.error("Exercise 2 error:", error)
 	}
-
-	const order: Order = {
-		itemName: "Pizza",
-		quantity: -3, // Silent bug! Negative quantity
-		pricePerUnit: 15,
-	}
-
-	// TODO: Replace `number` with a Quantity branded type.
-	// Both of the bugs below should become impossible:
-	//   quantity: -3       // <-- negative
-	//   quantity: 50000    // <-- exceeds business limit
-
-	const total = order.quantity * order.pricePerUnit
-	logError(2, "Negative quantity allowed - restaurant owes customer money?", {
-		order,
-		calculatedTotal: total,
-		issue: "Quantity should be a positive integer!",
-	})
-
-	// Another silent bug - absurd quantity
-	const bulkOrder: Order = {
-		itemName: "Coffee",
-		quantity: createQuantity(50000), // Silent bug! Unrealistic quantity
-		pricePerUnit: 3,
-	}
-
-	logError(2, "Absurd quantity accepted without validation", {
-		order: bulkOrder,
-		calculatedTotal: bulkOrder.quantity * bulkOrder.pricePerUnit,
-		issue: "Should we really accept an order for 50,000 coffees?",
-	})
 }

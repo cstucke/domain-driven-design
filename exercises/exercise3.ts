@@ -35,9 +35,9 @@ import { logError } from "./logger.js"
 // This is the core DDD idea: make illegal states unrepresentable.
 // ============================================================================
 
-type Name = string & {readonly __brand: unique symbol}
-type Email = string & {readonly __brand: unique symbol}
-type Phone = string & {readonly __brand: unique symbol}
+type Name = string & { readonly __brand: unique symbol }
+type Email = string & { readonly __brand: unique symbol }
+type Phone = string & { readonly __brand: unique symbol }
 
 function createName(name: string): Name {
 	if (name.trim().length === 0) throw new Error("Name cannot be empty")
@@ -55,36 +55,40 @@ function createPhone(phone: string): Phone {
 }
 
 export function exercise3_StringConfusion() {
-	type Customer = {
-		name: Name
-		email: Email
-		phone: Phone
+	try {
+		type Customer = {
+			name: Name
+			email: Email
+			phone: Phone
+		}
+
+		// TypeScript sees all strings as the same!
+		const customer: Customer = {
+			name: "john@example.com", // Silent bug! Email in name field
+			email: "John Doe", // Silent bug! Name in email field
+			phone: "555-PIZZA", // Silent bug! Letters in phone field
+		}
+
+		// TODO: Create separate branded types (Email, Phone, CustomerName) so
+		// that swapping values between fields becomes a compile-time error.
+
+		logError(3, "Fields mixed up - all are strings, TypeScript doesn't care", {
+			customer,
+			issue: "Email, phone, and name are all 'string' - no semantic distinction!",
+		})
+
+		// Even worse - empty strings pass validation
+		const emptyCustomer: Customer = {
+			name: createName(""),
+			email: createEmail(""),
+			phone: createPhone(""),
+		}
+
+		logError(3, "Empty strings accepted everywhere", {
+			customer: emptyCustomer,
+			issue: "Required fields should not be empty!",
+		})
+	} catch (error) {
+		console.error("Exercise 3 error: ", error)
 	}
-
-	// TypeScript sees all strings as the same!
-	const customer: Customer = {
-		name: "john@example.com", // Silent bug! Email in name field
-		email: "John Doe", // Silent bug! Name in email field
-		phone: "555-PIZZA", // Silent bug! Letters in phone field
-	}
-
-	// TODO: Create separate branded types (Email, Phone, CustomerName) so
-	// that swapping values between fields becomes a compile-time error.
-
-	logError(3, "Fields mixed up - all are strings, TypeScript doesn't care", {
-		customer,
-		issue: "Email, phone, and name are all 'string' - no semantic distinction!",
-	})
-
-	// Even worse - empty strings pass validation
-	const emptyCustomer: Customer = {
-		name: createName(""),
-		email: createEmail(""),
-		phone: createPhone(""),
-	}
-
-	logError(3, "Empty strings accepted everywhere", {
-		customer: emptyCustomer,
-		issue: "Required fields should not be empty!",
-	})
 }
